@@ -1,0 +1,10 @@
+# https://github.com/dotnet/blazor/blob/master/.gitignore
+.vs/
+bin/
+obj/
+*.user
+artifacts/
+.vscode/
+.dotnet/
+*.binlog
+*.pubxml
