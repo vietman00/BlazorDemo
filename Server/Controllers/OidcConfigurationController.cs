@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace BlazorDemo.Server.Controllers
 {
+    [Route("authorizedpwa")]
+    [Route("")]
     public class OidcConfigurationController : Controller
     {
         private readonly ILogger<OidcConfigurationController> _logger;

@@ -10,6 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlazorDemo.AuthorizedPwaClient\BlazorDemo.AuthorizedPwaClient.csproj" />
+    <ProjectReference Include="..\BlazorDemo.PwaClient\BlazorDemo.PwaClient.csproj" />
     <ProjectReference Include="..\Client\BlazorDemo.Client.csproj" />
     <ProjectReference Include="..\Shared\BlazorDemo.Shared.csproj" />
   </ItemGroup>

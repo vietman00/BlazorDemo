@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -43,11 +44,11 @@ namespace BlazorDemo.Server
                 .AddApiAuthorization<IdentityUser, ApplicationDbContext>
                 (options =>
                 {
-                    // Specify Redirect Uris for BlazorDemo.Admin..
-                    //options.Clients["BlazorDemo.Admin"].RedirectUris.Clear();
-                    //options.Clients["BlazorDemo.Admin"].PostLogoutRedirectUris.Clear();
-                    //options.Clients["BlazorDemo.Admin"].RedirectUris.Add("/admin/authentication/login-callback");
-                    //options.Clients["BlazorDemo.Admin"].PostLogoutRedirectUris.Add("/admin/authentication/logout-callback");
+                    // Specify Redirect Uris for BlazorDemo.AuthorizedPwaClient..
+                    options.Clients["BlazorDemo.AuthorizedPwaClient"].RedirectUris.Clear();
+                    options.Clients["BlazorDemo.AuthorizedPwaClient"].PostLogoutRedirectUris.Clear();
+                    options.Clients["BlazorDemo.AuthorizedPwaClient"].RedirectUris.Add("/authorizedpwa/authentication/login-callback");
+                    options.Clients["BlazorDemo.AuthorizedPwaClient"].PostLogoutRedirectUris.Add("/authorizedpwa/authentication/logout-callback");
 
                     options.IdentityResources["openid"].UserClaims.Add("name");
                     options.ApiResources.Single().UserClaims.Add("name");
@@ -84,6 +85,42 @@ namespace BlazorDemo.Server
             }
 
             app.UseHttpsRedirection();
+
+            // Using Multiple Blazor Apps - https://docs.microsoft.com/en-us/aspnet/core/blazor/host-and-deploy/webassembly?view=aspnetcore-5.0#hosted-deployment-with-multiple-blazor-webassembly-apps
+            app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/Pwa", StringComparison.OrdinalIgnoreCase), first =>
+            {
+                first.UseBlazorFrameworkFiles("/Pwa");
+                first.UseStaticFiles("/Pwa");
+                first.UseStaticFiles();
+
+                first.UseRouting();
+
+                first.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapFallbackToFile("Pwa/{*path:nonfile}", "Pwa/index.html");
+                });
+            });
+
+            app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/AuthorizedPwa", StringComparison.OrdinalIgnoreCase), first =>
+            {
+                first.UseBlazorFrameworkFiles("/AuthorizedPwa");
+                first.UseStaticFiles("/AuthorizedPwa");
+                first.UseStaticFiles();
+
+                first.UseRouting();
+
+                first.UseIdentityServer();
+                first.UseAuthentication();
+                first.UseAuthorization();
+
+                first.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapFallbackToFile("AuthorizedPwa/{*path:nonfile}", "AuthorizedPwa/index.html");
+                });
+            });
+
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 

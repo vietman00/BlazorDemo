@@ -1,0 +1,9 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Administrator")]
+
+<h1>Hello, world!</h1>
+
+Welcome to your new authorized PWA!
+
+<SurveyPrompt Title="How is Blazor working for you?" />
